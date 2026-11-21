@@ -1926,5 +1926,413 @@
   loadSystemInputs();
   loadData();
 </script>
+<!-- ==================== MODULE BẢO MẬT ĐĂNG NHẬP (v5.3) ==================== -->
+<div id="authLockOverlay" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
+    <!-- Đầu khung đăng nhập -->
+    <div class="ml-green text-white px-5 py-5 text-center space-y-1">
+      <div class="text-3xl">🔐</div>
+      <h2 class="text-base font-bold">Sổ Chi Tiêu AI — Bảo Mật</h2>
+      <p class="text-[11px] text-emerald-100">Đăng nhập bằng mật khẩu hoặc Gmail được cấp quyền</p>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- Chuyển phương thức đăng nhập -->
+      <div id="authModeTabs" class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+        <button type="button" id="authTabPass" onclick="switchAuthMode('pass')" class="py-1.5 rounded-lg bg-white text-emerald-700 shadow-sm">🔑 Mật khẩu</button>
+        <button type="button" id="authTabGmail" onclick="switchAuthMode('gmail')" class="py-1.5 rounded-lg text-slate-500">📧 Gmail</button>
+      </div>
+
+      <!-- Thông báo trạng thái -->
+      <div id="authAlertBox" class="hidden text-xs px-3 py-2 rounded-xl font-medium"></div>
+
+      <!-- FORM 1: ĐĂNG NHẬP BẰNG MẬT KHẨU -->
+      <form id="authFormPass" onsubmit="handlePasswordLogin(event)" class="space-y-3">
+        <div>
+          <label class="text-xs font-medium text-slate-600">Nhập mật khẩu truy cập</label>
+          <div class="relative mt-1">
+            <input id="authPassInput" type="password" required autocomplete="current-password" placeholder="Nhập mật khẩu..." class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm pr-12 focus:outline-none focus:border-emerald-500" />
+            <button type="button" onclick="togglePassVisibility('authPassInput')" class="absolute right-3 top-2.5 text-xs text-slate-400">Hiện</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs">
+          <label class="flex items-center gap-1.5 text-slate-600 cursor-pointer">
+            <input id="authRememberPass" type="checkbox" checked class="rounded" /> Ghi nhớ 7 ngày
+          </label>
+          <button type="button" onclick="switchAuthMode('reset')" class="text-emerald-700 font-semibold hover:underline">Quên mật khẩu?</button>
+        </div>
+        <button id="btnLoginPass" type="submit" class="w-full ml-green text-white font-bold py-2.5 rounded-xl text-sm shadow hover:opacity-95">
+          Mở khóa ứng dụng
+        </button>
+      </form>
+
+      <!-- FORM 2: ĐĂNG NHẬP BẰNG GMAIL (dohung712@gmail.com) -->
+      <div id="authFormGmail" class="hidden space-y-3">
+        <div>
+          <label class="text-xs font-medium text-slate-600">Gmail được cấp quyền</label>
+          <input id="authGmailInput" type="email" value="dohung712@gmail.com" placeholder="dohung712@gmail.com" class="w-full mt-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-500" />
+        </div>
+        <button id="btnSendGmailOtp" type="button" onclick="handleSendGmailOtp()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs shadow">
+          Gửi mã đăng nhập 6 số qua Gmail
+        </button>
+
+        <form id="authVerifyOtpBox" onsubmit="handleVerifyGmailOtp(event)" class="hidden space-y-2.5 pt-2 border-t border-slate-100">
+          <div>
+            <label class="text-xs font-medium text-slate-600">Nhập mã 6 số vừa gửi về Gmail</label>
+            <input id="authGmailOtpInput" type="text" inputmode="numeric" maxlength="6" required placeholder="000000" class="w-full mt-1 border border-emerald-300 bg-emerald-50/40 rounded-xl px-3 py-2 text-center text-lg font-bold tracking-widest" />
+          </div>
+          <label class="flex items-center gap-1.5 text-xs text-slate-600">
+            <input id="authRememberGmail" type="checkbox" checked /> Ghi nhớ đăng nhập 7 ngày
+          </label>
+          <button id="btnVerifyGmailOtp" type="submit" class="w-full ml-green text-white font-bold py-2.5 rounded-xl text-sm">
+            Xác nhận & Đăng nhập
+          </button>
+        </form>
+      </div>
+
+      <!-- FORM 3: QUÊN MẬT KHẨU (RESET VỀ dohung712@gmail.com) -->
+      <div id="authFormReset" class="hidden space-y-3">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-[11px] text-amber-900">
+          Hệ thống sẽ gửi mã khôi phục 6 số về email bảo mật <strong>dohung712@gmail.com</strong> để bạn đặt mật khẩu mới.
+        </div>
+        <button id="btnSendResetOtp" type="button" onclick="handleSendResetOtp()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs shadow">
+          Gửi mã khôi phục về dohung712@gmail.com
+        </button>
+
+        <form id="authResetConfirmBox" onsubmit="handleConfirmReset(event)" class="hidden space-y-2.5 pt-2 border-t border-slate-100">
+          <div>
+            <label class="text-xs text-slate-600">Mã khôi phục 6 số trong email</label>
+            <input id="authResetOtpInput" type="text" inputmode="numeric" maxlength="6" required placeholder="000000" class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2 text-center text-base font-bold tracking-widest" />
+          </div>
+          <div>
+            <label class="text-xs text-slate-600">Mật khẩu mới (ít nhất 6 ký tự)</label>
+            <input id="authResetNewPass" type="password" minlength="6" required placeholder="Nhập mật khẩu mới..." class="w-full mt-1 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+          </div>
+          <button id="btnConfirmReset" type="submit" class="w-full ml-green text-white font-bold py-2.5 rounded-xl text-sm">
+            Đặt lại mật khẩu & Đăng nhập
+          </button>
+        </form>
+
+        <button type="button" onclick="switchAuthMode('pass')" class="w-full text-center text-xs text-slate-500 hover:text-slate-700 pt-1">
+          ← Quay lại đăng nhập bằng mật khẩu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const AUTH_TOKEN_KEY = 'money_app_auth_token_v53';
+  const AUTH_EMAIL_KEY = 'money_app_auth_email_v53';
+
+  function getAuthToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY) || '';
+  }
+
+  function setAuthSession(token, email) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token || '');
+    localStorage.setItem(AUTH_EMAIL_KEY, email || '');
+  }
+
+  function clearAuthSession() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_EMAIL_KEY);
+  }
+
+  function showAuthAlert(msg, isError) {
+    const el = document.getElementById('authAlertBox');
+    el.classList.remove('hidden', 'bg-rose-50', 'text-rose-700', 'bg-emerald-50', 'text-emerald-700');
+    el.classList.add(isError ? 'bg-rose-50' : 'bg-emerald-50', isError ? 'text-rose-700' : 'text-emerald-700');
+    el.textContent = msg;
+  }
+
+  function hideAuthAlert() {
+    document.getElementById('authAlertBox').classList.add('hidden');
+  }
+
+  function togglePassVisibility(inputId) {
+    const inp = document.getElementById(inputId);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function switchAuthMode(mode) {
+    hideAuthAlert();
+    document.getElementById('authFormPass').classList.toggle('hidden', mode !== 'pass');
+    document.getElementById('authFormGmail').classList.toggle('hidden', mode !== 'gmail');
+    document.getElementById('authFormReset').classList.toggle('hidden', mode !== 'reset');
+    document.getElementById('authModeTabs').classList.toggle('hidden', mode === 'reset');
+
+    document.getElementById('authTabPass').className = mode === 'pass'
+      ? 'py-1.5 rounded-lg bg-white text-emerald-700 shadow-sm'
+      : 'py-1.5 rounded-lg text-slate-500';
+    document.getElementById('authTabGmail').className = mode === 'gmail'
+      ? 'py-1.5 rounded-lg bg-white text-emerald-700 shadow-sm'
+      : 'py-1.5 rounded-lg text-slate-500';
+  }
+
+  function lockAppUI(reasonMsg) {
+    document.getElementById('authLockOverlay').classList.remove('hidden');
+    if (reasonMsg) showAuthAlert(reasonMsg, true);
+  }
+
+  function unlockAppUI() {
+    document.getElementById('authLockOverlay').classList.add('hidden');
+    hideAuthAlert();
+  }
+
+  // Ghi đè apiPost để tự động đính kèm authToken và xử lý khi hết phiên
+  async function rawSecurityPost(payload) {
+    const { scriptUrl } = getSysCfg();
+    const res = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  window.apiPost = async function(payload) {
+    const token = getAuthToken();
+    const json = await rawSecurityPost({ ...payload, authToken: token });
+    if (json && json.status === 'unauthorized') {
+      clearAuthSession();
+      lockAppUI(json.message || 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+    }
+    return json;
+  };
+
+  // Ghi đè loadData để truyền ?token=... lên doGet
+  window.loadData = async function() {
+    const token = getAuthToken();
+    if (!token) {
+      lockAppUI();
+      return;
+    }
+    const cfg = getSysCfg();
+    document.getElementById('connStatus').textContent = 'Đang đồng bộ Google Sheets...';
+    try {
+      const sep = cfg.scriptUrl.includes('?') ? '&' : '?';
+      const res = await fetch(cfg.scriptUrl + sep + 'token=' + encodeURIComponent(token));
+      const json = await res.json();
+      if (json.status === 'unauthorized') {
+        clearAuthSession();
+        lockAppUI('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        return;
+      }
+      if (json.status === 'ok') {
+        unlockAppUI();
+        state = {
+          transactions: json.data.transactions || [],
+          wallets: json.data.wallets || [],
+          cards: json.data.cards || [],
+          debts: json.data.debts || [],
+          installments: json.data.installments || [],
+          bankFilters: json.data.bankFilters || [],
+          learnedTemplates: json.data.learnedTemplates || [],
+          habits: json.data.habits || [],
+          categories: json.data.categories || [],
+          knowledge: json.data.knowledge || [],
+          keywordGroups: json.data.keywordGroups || [],
+          config: json.data.config || {},
+          sheetUrl: json.data.sheetUrl || cfg.sheetUrl
+        };
+        aiSuggestionsCache = null;
+        document.getElementById('connStatus').textContent = `Đã kết nối • ${state.transactions.length} GD • ${localStorage.getItem(AUTH_EMAIL_KEY) || 'Đã xác thực'}`;
+        loadSystemInputs();
+        renderAll();
+      } else {
+        document.getElementById('connStatus').textContent = 'Lỗi Script: ' + json.message;
+      }
+    } catch (e) {
+      document.getElementById('connStatus').textContent = 'Chưa kết nối được — Kiểm tra bản triển khai mới';
+    }
+  };
+
+  /* --- XỬ LÝ 3 LUỒNG ĐĂNG NHẬP & QUÊN MẬT KHẨU --- */
+  async function handlePasswordLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnLoginPass');
+    btn.disabled = true; btn.textContent = 'Đang kiểm tra...';
+    hideAuthAlert();
+    try {
+      const json = await rawSecurityPost({
+        action: 'authLoginPassword',
+        password: document.getElementById('authPassInput').value,
+        rememberMe: document.getElementById('authRememberPass').checked
+      });
+      if (json && json.status === 'ok' && json.token) {
+        setAuthSession(json.token, json.email);
+        document.getElementById('authPassInput').value = '';
+        unlockAppUI();
+        await loadData();
+      } else {
+        showAuthAlert(json?.message || 'Đăng nhập thất bại.', true);
+      }
+    } catch (err) {
+      showAuthAlert('Lỗi kết nối tới Apps Script: ' + err.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Mở khóa ứng dụng';
+    }
+  }
+
+  async function handleSendGmailOtp() {
+    const email = document.getElementById('authGmailInput').value.trim();
+    const btn = document.getElementById('btnSendGmailOtp');
+    btn.disabled = true; btn.textContent = 'Đang gửi mã...';
+    hideAuthAlert();
+    try {
+      const json = await rawSecurityPost({ action: 'authRequestGmailOtp', email });
+      if (json && json.status === 'ok') {
+        showAuthAlert(json.message, false);
+        document.getElementById('authVerifyOtpBox').classList.remove('hidden');
+        document.getElementById('authGmailOtpInput').focus();
+      } else {
+        showAuthAlert(json?.message || 'Không gửi được mã.', true);
+      }
+    } catch (err) {
+      showAuthAlert('Lỗi kết nối: ' + err.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Gửi lại mã đăng nhập qua Gmail';
+    }
+  }
+
+  async function handleVerifyGmailOtp(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnVerifyGmailOtp');
+    btn.disabled = true; btn.textContent = 'Đang xác thực...';
+    try {
+      const json = await rawSecurityPost({
+        action: 'authVerifyGmailOtp',
+        email: document.getElementById('authGmailInput').value.trim(),
+        otp: document.getElementById('authGmailOtpInput').value.trim(),
+        rememberMe: document.getElementById('authRememberGmail').checked
+      });
+      if (json && json.status === 'ok' && json.token) {
+        setAuthSession(json.token, json.email);
+        document.getElementById('authGmailOtpInput').value = '';
+        unlockAppUI();
+        await loadData();
+      } else {
+        showAuthAlert(json?.message || 'Mã OTP không đúng.', true);
+      }
+    } catch (err) {
+      showAuthAlert('Lỗi xác thực: ' + err.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Xác nhận & Đăng nhập';
+    }
+  }
+
+  async function handleSendResetOtp() {
+    const btn = document.getElementById('btnSendResetOtp');
+    btn.disabled = true; btn.textContent = 'Đang gửi mã khôi phục...';
+    hideAuthAlert();
+    try {
+      const json = await rawSecurityPost({ action: 'authRequestReset' });
+      if (json && json.status === 'ok') {
+        showAuthAlert(json.message, false);
+        document.getElementById('authResetConfirmBox').classList.remove('hidden');
+        document.getElementById('authResetOtpInput').focus();
+      } else {
+        showAuthAlert(json?.message || 'Không gửi được email khôi phục.', true);
+      }
+    } catch (err) {
+      showAuthAlert('Lỗi kết nối: ' + err.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Gửi lại mã khôi phục';
+    }
+  }
+
+  async function handleConfirmReset(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnConfirmReset');
+    btn.disabled = true; btn.textContent = 'Đang đặt lại mật khẩu...';
+    try {
+      const json = await rawSecurityPost({
+        action: 'authConfirmReset',
+        otp: document.getElementById('authResetOtpInput').value.trim(),
+        newPassword: document.getElementById('authResetNewPass').value.trim()
+      });
+      if (json && json.status === 'ok' && json.token) {
+        setAuthSession(json.token, json.email);
+        document.getElementById('authResetOtpInput').value = '';
+        document.getElementById('authResetNewPass').value = '';
+        unlockAppUI();
+        await loadData();
+        alert('Đã đặt lại mật khẩu mới thành công!');
+      } else {
+        showAuthAlert(json?.message || 'Đặt lại mật khẩu thất bại.', true);
+      }
+    } catch (err) {
+      showAuthAlert('Lỗi kết nối: ' + err.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Đặt lại mật khẩu & Đăng nhập';
+    }
+  }
+
+  async function logoutApp() {
+    if (!confirm('Khóa ứng dụng và đăng xuất khỏi thiết bị này?')) return;
+    const token = getAuthToken();
+    clearAuthSession();
+    lockAppUI();
+    try { await rawSecurityPost({ action: 'authLogout', authToken: token }); } catch (e) {}
+  }
+
+  async function handleChangePasswordInSettings(e) {
+    e.preventDefault();
+    const oldPassword = document.getElementById('secOldPass').value;
+    const newPassword = document.getElementById('secNewPass').value.trim();
+    const json = await apiPost({ action: 'authChangePassword', oldPassword, newPassword });
+    if (json && json.status === 'ok') {
+      document.getElementById('secOldPass').value = '';
+      document.getElementById('secNewPass').value = '';
+      alert(json.message);
+    } else if (json && json.status !== 'unauthorized') {
+      alert(json?.message || 'Không đổi được mật khẩu.');
+    }
+  }
+
+  // Tự chèn nút Khóa trên Header & mục Đổi mật khẩu trong tab Hệ thống (giữ nguyên cấu trúc cũ)
+  function injectSecurityControls() {
+    const headerBtns = document.querySelector('header .flex.gap-2');
+    if (headerBtns && !document.getElementById('btnHeaderLock')) {
+      const lockBtn = document.createElement('button');
+      lockBtn.id = 'btnHeaderLock';
+      lockBtn.type = 'button';
+      lockBtn.onclick = logoutApp;
+      lockBtn.className = 'bg-rose-500/80 hover:bg-rose-600 text-white text-xs px-2.5 py-1.5 rounded-full font-semibold';
+      lockBtn.textContent = '🔒 Khóa';
+      headerBtns.appendChild(lockBtn);
+    }
+
+    const sysTab = document.getElementById('tab-system');
+    if (sysTab && !document.getElementById('secSettingsCard')) {
+      const card = document.createElement('div');
+      card.id = 'secSettingsCard';
+      card.className = 'bg-white rounded-2xl p-4 shadow-sm border border-rose-200 space-y-3';
+      card.innerHTML = `
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="font-bold text-sm text-rose-900">🔐 Bảo mật & Đổi mật khẩu</h2>
+            <p class="text-[11px] text-slate-500">Email cấp quyền & khôi phục: <strong>dohung712@gmail.com</strong></p>
+          </div>
+          <button type="button" onclick="logoutApp()" class="text-xs bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold">Đăng xuất</button>
+        </div>
+        <form onsubmit="handleChangePasswordInSettings(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input id="secOldPass" type="password" required placeholder="Mật khẩu hiện tại" class="border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+          <input id="secNewPass" type="password" minlength="6" required placeholder="Mật khẩu mới (>=6 ký tự)" class="border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+          <button type="submit" class="ml-green text-white text-xs font-bold py-2 rounded-xl">Đổi mật khẩu</button>
+        </form>`;
+      sysTab.insertBefore(card, sysTab.firstChild);
+    }
+  }
+
+  // Khởi chạy kiểm tra phiên ngay khi tải trang
+  injectSecurityControls();
+  if (getAuthToken()) {
+    loadData();
+  } else {
+    lockAppUI();
+  }
+</script>
 </body>
 </html>
