@@ -606,6 +606,88 @@
         </div>
       </div>
 
+      <!-- 3B. Lịch Quét Gmail & Báo Cáo Định Kỳ Telegram (v6.2.2) -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-sky-200 space-y-3 text-xs">
+        <div class="flex flex-wrap justify-between items-start gap-2">
+          <div>
+            <h2 class="font-bold text-sm text-sky-950">🤖 Lịch Quét Gmail & Báo Cáo Định Kỳ Telegram</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Bật/tắt từng lịch tự động (tự lưu ngay khi gạt nút) hoặc bấm <strong>Gửi thử</strong> để kiểm tra.</p>
+          </div>
+          <button type="button" id="btnInstallTriggersV622" onclick="installTriggersV622FromUI()" class="text-[11px] bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-full font-bold shadow-sm shrink-0">⚡ Cài 6 lịch tự động</button>
+        </div>
+
+        <div class="space-y-2">
+          <!-- Mục 1: Quét Gmail 3 lần/ngày -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800">1. Quét Gmail 3 lần/ngày (12h, 18h, 21h)</div>
+              <div class="text-[10px] text-slate-500">Tự động đọc biến động số dư mới & báo ngay qua Telegram</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="testAutoReportV622('gmail3x', this)" class="text-[10px] bg-white border border-slate-200 hover:border-sky-400 text-slate-700 px-2.5 py-1 rounded-lg font-semibold">📤 Gửi thử</button>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="chkTgGmail3x" type="checkbox" checked onchange="saveAutoReportToggles()" class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mục 2: Tổng kết cuối ngày -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800">2. Tổng kết cuối ngày (22:00 hàng ngày)</div>
+              <div class="text-[10px] text-slate-500">Thu – Chi trong ngày, từng thẻ/ví & danh sách từng giao dịch</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="testAutoReportV622('daily', this)" class="text-[10px] bg-white border border-slate-200 hover:border-sky-400 text-slate-700 px-2.5 py-1 rounded-lg font-semibold">📤 Gửi thử</button>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="chkTgDaily" type="checkbox" checked onchange="saveAutoReportToggles()" class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mục 3: Tổng kết cuối tuần -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800">3. Tổng kết cuối tuần (21:00 Chủ Nhật)</div>
+              <div class="text-[10px] text-slate-500">Dòng tiền 7 ngày, cơ cấu danh mục, từng thẻ & Top 5 khoản chi</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="testAutoReportV622('weekly', this)" class="text-[10px] bg-white border border-slate-200 hover:border-sky-400 text-slate-700 px-2.5 py-1 rounded-lg font-semibold">📤 Gửi thử</button>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="chkTgWeekly" type="checkbox" checked onchange="saveAutoReportToggles()" class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mục 4: Tổng kết đầu tháng -->
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800">4. Tổng kết đầu tháng (08:00 Ngày 1)</div>
+              <div class="text-[10px] text-slate-500">Tổng kết trọn tháng trước, hoàn tiền thẻ & đánh giá ngân sách</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" onclick="testAutoReportV622('monthly', this)" class="text-[10px] bg-white border border-slate-200 hover:border-sky-400 text-slate-700 px-2.5 py-1 rounded-lg font-semibold">📤 Gửi thử</button>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input id="chkTgMonthly" type="checkbox" checked onchange="saveAutoReportToggles()" class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
+          <label class="flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer">
+            <input id="chkTgNotifyEmpty" type="checkbox" onchange="saveAutoReportToggles()" class="rounded text-emerald-600" />
+            <span>Báo cả khi đợt quét 12h/18h/21h không có GD mới</span>
+          </label>
+          <button type="button" onclick="testAutoReportV622('all', this)" class="text-[11px] bg-slate-800 text-white px-3 py-1.5 rounded-xl font-bold">🚀 Gửi thử cả 4 báo cáo</button>
+        </div>
+        <div id="v622AutoReportStatus" class="hidden text-[11px] px-3 py-2 rounded-xl bg-sky-50 text-sky-900 font-medium"></div>
+      </div>
+
       <!-- 4. Quản lý Danh mục tự động & thêm tay -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 text-xs">
         <div class="flex justify-between items-center">
@@ -1176,6 +1258,11 @@
       document.getElementById('cfgInternalNames').value = cfg.INTERNAL_NAMES || 'DO XUAN HUNG, ĐỖ XUÂN HÙNG';
       document.getElementById('cfgTgToken').value = cfg.TELEGRAM_BOT_TOKEN || '';
       document.getElementById('cfgTgChatId').value = cfg.TELEGRAM_CHAT_ID || '';
+      document.getElementById('chkTgGmail3x').checked = cfg.TG_AUTO_GMAIL_3X !== 'Tat';
+      document.getElementById('chkTgDaily').checked = cfg.TG_REPORT_DAILY !== 'Tat';
+      document.getElementById('chkTgWeekly').checked = cfg.TG_REPORT_WEEKLY !== 'Tat';
+      document.getElementById('chkTgMonthly').checked = cfg.TG_REPORT_MONTHLY !== 'Tat';
+      document.getElementById('chkTgNotifyEmpty').checked = cfg.TELEGRAM_NOTIFY_EMPTY_SYNC === 'Bat';
     }
 
     function renderAll() {
@@ -2288,10 +2375,83 @@
           REMIND_EMAIL: document.getElementById('cfgRemindEmail').value.trim(),
           INTERNAL_NAMES: document.getElementById('cfgInternalNames').value.trim(),
           TELEGRAM_BOT_TOKEN: document.getElementById('cfgTgToken').value.trim(),
-          TELEGRAM_CHAT_ID: document.getElementById('cfgTgChatId').value.trim()
+          TELEGRAM_CHAT_ID: document.getElementById('cfgTgChatId').value.trim(),
+          TG_AUTO_GMAIL_3X: document.getElementById('chkTgGmail3x').checked ? 'Bat' : 'Tat',
+          TG_REPORT_DAILY: document.getElementById('chkTgDaily').checked ? 'Bat' : 'Tat',
+          TG_REPORT_WEEKLY: document.getElementById('chkTgWeekly').checked ? 'Bat' : 'Tat',
+          TG_REPORT_MONTHLY: document.getElementById('chkTgMonthly').checked ? 'Bat' : 'Tat',
+          TELEGRAM_NOTIFY_EMPTY_SYNC: document.getElementById('chkTgNotifyEmpty').checked ? 'Bat' : 'Tat'
         }
       });
       if (json?.status === 'ok') { state = { ...state, ...json.data }; alert('Đã lưu cấu hình lên Google Sheets!'); }
+    }
+
+    function showV622ReportStatus(msg, isError) {
+      const el = document.getElementById('v622AutoReportStatus');
+      if (!el) return;
+      el.classList.remove('hidden', 'bg-sky-50', 'text-sky-900', 'bg-rose-50', 'text-rose-700');
+      el.classList.add(isError ? 'bg-rose-50' : 'bg-sky-50', isError ? 'text-rose-700' : 'text-sky-900');
+      el.textContent = msg;
+    }
+
+    async function saveAutoReportToggles() {
+      showV622ReportStatus('⏳ Đang lưu trạng thái bật/tắt báo cáo lên Google Sheets...', false);
+      try {
+        const json = await apiPost({
+          action: 'saveConfigs',
+          entries: {
+            TG_AUTO_GMAIL_3X: document.getElementById('chkTgGmail3x').checked ? 'Bat' : 'Tat',
+            TG_REPORT_DAILY: document.getElementById('chkTgDaily').checked ? 'Bat' : 'Tat',
+            TG_REPORT_WEEKLY: document.getElementById('chkTgWeekly').checked ? 'Bat' : 'Tat',
+            TG_REPORT_MONTHLY: document.getElementById('chkTgMonthly').checked ? 'Bat' : 'Tat',
+            TELEGRAM_NOTIFY_EMPTY_SYNC: document.getElementById('chkTgNotifyEmpty').checked ? 'Bat' : 'Tat'
+          }
+        });
+        if (json?.status === 'ok') {
+          state = { ...state, ...json.data };
+          showV622ReportStatus('✅ Đã cập nhật trạng thái lịch báo cáo tự động!', false);
+        } else {
+          showV622ReportStatus('⚠️ ' + (json?.message || 'Không lưu được trạng thái.'), true);
+        }
+      } catch (err) {
+        showV622ReportStatus('⚠️ ' + err.message, true);
+      }
+    }
+
+    async function testAutoReportV622(reportType, btnEl) {
+      const origText = btnEl ? btnEl.textContent : '';
+      if (btnEl) { btnEl.disabled = true; btnEl.textContent = '⏳ Đang gửi...'; }
+      showV622ReportStatus('⏳ Đang tổng hợp số liệu và gửi qua Telegram...', false);
+      try {
+        const json = await apiPost({ action: 'triggerAutoReportV622', reportType });
+        if (json?.status === 'ok') {
+          showV622ReportStatus('✅ ' + (json.message || 'Đã gửi báo cáo qua Telegram!'), false);
+        } else {
+          showV622ReportStatus('⚠️ ' + (json?.message || 'Gửi thất bại. Hãy kiểm tra lại Token/Chat ID hoặc cập nhật Code.gs & AutoReportsV622.gs.'), true);
+        }
+      } catch (err) {
+        showV622ReportStatus('⚠️ ' + err.message, true);
+      } finally {
+        if (btnEl) { btnEl.disabled = false; btnEl.textContent = origText; }
+      }
+    }
+
+    async function installTriggersV622FromUI() {
+      const btn = document.getElementById('btnInstallTriggersV622');
+      btn.disabled = true; btn.textContent = '⏳ Đang cài...';
+      showV622ReportStatus('⏳ Đang kích hoạt 6 lịch chạy ngầm trên Google Apps Script...', false);
+      try {
+        const json = await apiPost({ action: 'installTriggersV622' });
+        if (json?.status === 'ok') {
+          showV622ReportStatus('✅ ' + json.message, false);
+        } else {
+          showV622ReportStatus('⚠️ ' + (json?.message || 'Không cài được lịch tự động.'), true);
+        }
+      } catch (err) {
+        showV622ReportStatus('⚠️ ' + err.message, true);
+      } finally {
+        btn.disabled = false; btn.textContent = '⚡ Cài 6 lịch tự động';
+      }
     }
 
     function renderCategoryManageList() {
